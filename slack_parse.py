@@ -19,6 +19,7 @@ from datetime import datetime
 import json
 import re
 import sys
+import unicodedata
 
 # Import the user id <-> nick dict
 users = {}
@@ -82,9 +83,11 @@ def parse_line(line):
 
 def replace_with_special(text):
     "Substitutes user ids with nicks, channel ids with channels, escaped chars"
+    unicode_pass = \
+        unicodedata.normalize("NFKD", text).encode("ascii", "ignore")
     users_pass = re.sub(r"<@(U[0-9A-Z]{8})(\|[^>]*)?>",
                         lambda x: users[x.group(1)],
-                        text)
+                        unicode_pass)
     channels_pass = re.sub(r"<#(C[0-9A-Z]{8})>",
                            lambda x: channels[x.group(1)],
                            users_pass)
